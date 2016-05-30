@@ -11,17 +11,31 @@ class Game
   end
 
   def welcome_message
-  	puts "Welcome to Mastermind #{@player}, are you ready to play? (Y / N)"
+  	puts "\n\nWelcome to Mastermind #{@player}, are you ready to play? (Y / N)"
   	user_input = gets.chomp.downcase
 
   	if user_input == "y"
-  		computer_chooses_random_colors
+  		select_game_mode
   	elsif user_input == "n"
   		exit
   	else
   		puts "Please enter Y or N"
   		welcome_message
   	end			
+  end
+
+  def select_game_mode
+  	puts "\n\nWould you like to guess the colors, or have the computer guess the colors? (Me / CPU)"
+  	user_selection = gets.chomp.downcase
+
+  	if user_selection == "me"
+  		computer_chooses_random_colors
+  	elsif user_selection == "cpu"
+  		GameWithAI.new("Ghengis", @player)
+  	else
+  		puts "\n\nPlease enter Me or CPU"
+  		select_game_mode
+  	end
   end
 
   def computer_chooses_random_colors
@@ -163,6 +177,21 @@ class Game
   end
 end
 
+class GameWithAI < Game
+  def initialize(computer, player)
+  	@computer = computer
+  	@player = player
+  	computer_introduction
+  end
+
+  def computer_introduction
+  	puts "\n\nHello #{@player}, I am #{@computer}. Are you ready to bong bong?"
+  	puts "\n\nPlease select your colors. \nYou may type an combination and order of the follows colors:"
+  	puts "Red, Blue, Green, White"
+  end
+end
 
 
 Game.new("Harry")
+
+
