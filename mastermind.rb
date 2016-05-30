@@ -1,13 +1,3 @@
-class Player
-  
-  attr_reader :player
-  
-  def initialize(player)
-  	@player = player
-  end
-
-end
-
 class Game
   
   def initialize(player)
@@ -66,21 +56,27 @@ class Game
   	check_player_input(@player_color_choices)
   end
 
-  def check_player_input(arr)
+  def is_valid?
   	valid_color_choices = ["red", "blue", "white", "green"]
-
-  	if arr.length == 4
-  		arr.each do |input_to_check|
-  			unless valid_color_choices.include?(input_to_check)
-  				puts "Invalid Choice: #{input_to_check}"
-  				guess_prompt
-  			end
+  	
+  	@player_color_choices.each do |input_to_check|
+  		unless valid_color_choices.include?(input_to_check)
+  			puts "\n\nInvalid Choice: #{input_to_check}"
+  			return false
   		end
+  	end
+  	
+  end
+
+  def check_player_input(arr)	
+  	if arr.length == 4 && is_valid?		
   		update_guess_count
   		check_for_correct_color_guesses
-  	else
-  		puts "Please make sure you enter 4 colors!"
+  	elsif arr.length != 4
+  		puts "\n\nPlease make sure you enter 4 colors!"
   		guess_prompt
+  	else
+  		guess_prompt	
   	end
   end
 
@@ -169,15 +165,4 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-x =  Game.new("Harry")
-x
+Game.new("Harry")
