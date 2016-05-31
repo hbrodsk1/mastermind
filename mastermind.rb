@@ -4,6 +4,7 @@ class Game
   	@player = player
   	@computer_color_choices = []
   	@player_color_choices = []
+  	@user_selection = ""
   	@number_of_guesses = 0
   	@number_of_guesses_remaining = 12
 
@@ -26,11 +27,11 @@ class Game
 
   def select_game_mode
   	puts "\n\nWould you like to guess the colors, or have the computer guess the colors? (Me / CPU)"
-  	user_selection = gets.chomp.downcase
+  	@user_selection = gets.chomp.downcase
 
-  	if user_selection == "me"
+  	if @user_selection == "me"
   		computer_chooses_random_colors
-  	elsif user_selection == "cpu"
+  	elsif @user_selection == "cpu"
   		GameWithAI.new("Ghengis", @player)
   	else
   		puts "\n\nPlease enter Me or CPU"
@@ -55,7 +56,13 @@ class Game
   	  	number = "green"
   	  end
   	end
-  	guess_prompt
+  	check_for_player_or_computer_route
+  end
+
+  def check_for_player_or_computer_route
+  	if @user_selection == "me"
+  		guess_prompt		
+  	end
   end
 
   def guess_prompt
@@ -177,17 +184,89 @@ class Game
   end
 end
 
+
+
 class GameWithAI < Game
   def initialize(computer, player)
   	@computer = computer
   	@player = player
+  	@computer_color_choices = []
+  	@number_of_guesses = 0
+  	@number_of_guesses_remaining = 12
+
   	computer_introduction
   end
 
   def computer_introduction
   	puts "\n\nHello #{@player}, I am #{@computer}. Are you ready to bong bong?"
-  	puts "\n\nPlease select your colors. \nYou may type an combination and order of the follows colors:"
-  	puts "Red, Blue, Green, White"
+  	puts "\n\nPlease select your colors. \nYou may type an combination and order of the follows colors, separated by a comma and a space:"
+  	puts "\nRed, Blue, Green, White"
+
+  	player_inputs_colors_for_computer_to_guess
+  end
+
+  def player_inputs_colors_for_computer_to_guess
+  	@player_color_choices = gets.chomp.split(", ").map! { |choice| choice.downcase }
+
+  	check_player_selection(@player_color_choices)
+  end
+
+  def check_player_selection(arr)
+  	if arr.length == 4 && is_valid?
+  		puts "\n\nThank you for your input. I now have ##{@number_of_guesses_remaining} guesses to get the correct sequence of colors"
+
+  		computer_guesses_colors
+  	else
+  		puts "\n\nPlease make sure you have entered 4 valid colors."
+  		puts "\n\nEnter a correct guess please."
+
+  		player_inputs_colors_for_computer_to_guess
+  	end
+  end
+
+  def computer_guesses_colors
+  	@number_of_guesses += 1
+
+  	puts "\n\nFor guess ##{@number_of_guesses}, I choose:"
+  	computer_chooses_random_colors
+  	print @computer_color_choices.join(", ")
+
+  	ask_for_player_feedback
+  end
+
+  def ask_for_player_feedback
+  	puts "\n\nPlease let me know how I did..."
+  	puts "\nHere are the colors you chose:"
+  	print @player_color_choices.join(", ")
+
+  	puts "\n\nGive me feedback by entering how many colors are correct and how many are in the correct spot, respectively."
+
+  	puts "\n\nGo ahead, how did I do??"
+  	get_player_feedback
+  end
+
+  def get_player_feedback
+  	puts "\nNumber of correct colors:"
+  	number_of_correct_colors = gets.chomp
+  	puts "\nNumber of correct spots:"
+  	number_of_correct_spots = gets.chomp
+	
+	check_player_feedback(number_of_correct_colors, number_of_correct_spots)  	
+  end
+
+  def check_player_feedback(colors, spots)
+  	acceptable_feedback = ["0", "1", "2", "3", "4"]
+
+  	if acceptable_feedback.include?(colors) && acceptable_feedback.include?(spots)
+  		puts "\n\nOkay, so I got #{colors} colors right and #{spots} spots right?"
+  		puts "Let me guess again"
+
+  		computer_guesses_colors
+  	else
+  		puts "Please enter a number 0-4 for how many colors and spots I guessed correctly"
+
+  		get_player_feedback
+  	end
   end
 end
 
