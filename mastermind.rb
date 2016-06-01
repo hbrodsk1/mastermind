@@ -215,7 +215,7 @@ class GameWithAI < Game
   	if arr.length == 4 && is_valid?
   		puts "\n\nThank you for your input. I now have ##{@number_of_guesses_remaining} guesses to get the correct sequence of colors"
 
-  		computer_guesses_colors
+  		computer_guesses_colors(0, 0)
   	else
   		puts "\n\nPlease make sure you have entered 4 valid colors."
   		puts "\n\nEnter a correct guess please."
@@ -224,13 +224,17 @@ class GameWithAI < Game
   	end
   end
 
-  def computer_guesses_colors
+  def computer_guesses_colors(colors, spots)
   	@number_of_guesses += 1
 
   	puts "\n\nFor guess ##{@number_of_guesses}, I choose:"
-  	computer_chooses_random_colors
-  	print @computer_color_choices.join(", ")
 
+  	if colors == 0 && spots == 0
+  		computer_chooses_random_colors
+  		print @computer_color_choices.join(", ")
+  	else
+  		update_computer_color_guesses(colors, spots)
+  	end
   	ask_for_player_feedback
   end
 
@@ -251,7 +255,17 @@ class GameWithAI < Game
   	puts "\nNumber of correct spots:"
   	number_of_correct_spots = gets.chomp
 	
-	check_player_feedback(number_of_correct_colors, number_of_correct_spots)  	
+	check_for_win_or_lose(number_of_correct_colors, number_of_correct_spots)
+  end
+
+  def check_for_win_or_lose(colors, spots)
+  	if colors == "4" && spots == "4"
+  		win_or_lose_message("win")
+  	elsif @number_of_guesses == 12
+  		win_or_lose_message("lose")
+  	end
+
+  	check_player_feedback(colors, spots)
   end
 
   def check_player_feedback(colors, spots)
@@ -260,13 +274,34 @@ class GameWithAI < Game
   	if acceptable_feedback.include?(colors) && acceptable_feedback.include?(spots)
   		puts "\n\nOkay, so I got #{colors} colors right and #{spots} spots right?"
   		puts "Let me guess again"
-
-  		computer_guesses_colors
+  		computer_guesses_colors(colors, spots)
   	else
   		puts "Please enter a number 0-4 for how many colors and spots I guessed correctly"
 
   		get_player_feedback
   	end
+  end
+
+  def update_computer_color_guesses(colors, spots)
+  	index = 0
+  	color_options = ["red", "blue", "green", "white"]
+
+  	while index < color_options.length
+  		unless @player_color_choices[index] == @computer_color_choices[index]
+  			@computer_color_choices[index] = color_options.sample
+  		end
+  		index += 1
+  	end
+  	print @computer_color_choices.join(", ")
+  end
+
+  def win_or_lose_message(str)
+  	if str == "win"
+  		puts "\n\nI won! You can't beat a computer..."
+  	elsif str == "lose"
+  		puts "\n\nIt looks like you outsmarted me."
+  	end
+  	play_again	
   end
 end
 
